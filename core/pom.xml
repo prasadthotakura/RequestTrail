@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.kira.requesttrail</groupId>
+    <artifactId>core</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>Request Trail Core</name>
+    <description>Java Library, provides mechanism to correlate or track a specific request targeted to distributed application that might translated to one or multiple internal requests to other distributed applications</description>
+
+    <developers>
+        <developer>
+            <id>prasadthotakura</id>
+            <name>Prasad K. Thotakura</name>
+            <timezone>+5</timezone>
+            <url>https://github.com/prasadthotakura</url>
+        </developer>
+    </developers>
+
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <inceptionYear>2016</inceptionYear>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.rometools/rome -->
+        <dependency>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.rometools/rome-utils -->
+        <dependency>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome-utils</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl -->
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-xml -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+       <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+           <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+       <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.8.7</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/aspectj/aspectjweaver -->
+        <dependency>
+            <groupId>aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/aspectj/aspectjtools -->
+        <dependency>
+            <groupId>aspectj</groupId>
+            <artifactId>aspectjtools</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>4.2.5.RELEASE</version>
+        </dependency>
+    </dependencies>
+</project>

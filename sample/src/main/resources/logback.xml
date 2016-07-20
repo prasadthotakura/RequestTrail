@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} [%X{req-correlation-id}|%X{user}|%X{app}|%X{app-call-stack}] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>logs/request-correlation.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>request-correlation.%d{yyyy-MM-dd}.log</FileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} [%X{req-correlation-id}|%X{user}|%X{app}|%X{app-call-stack}] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="org.kira.requesttrail" level="INFO" additivity="false">
+            <appender-ref ref="consoleAppender" />
+            <appender-ref ref="dailyRollingFileAppender" />
+	</logger>
+
+	<root level="WARN">
+		<appender-ref ref="consoleAppender" />
+		<appender-ref ref="dailyRollingFileAppender" />
+	</root>
+</configuration>
