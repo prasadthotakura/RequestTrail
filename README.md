@@ -1,5 +1,5 @@
-# RequestTrail
-Java Library that provides mechanism to correlate or track a specific request to a micro service that might translated to one or multiple internal requests to other micro services.
+# Request Trail
+Java Library that provides mechanism to correlate or track a specific request to a web application that might translated to one or multiple internal requests to micro services that application may composed of.
 
 In the era of highly distributed web applications, typically composed of micro services. A single request may cut across multiple micro services and translated to several requests delated to other micro services. It is extremely difficult to analyze and root cause the event of failure without sufficient contextual logging info. It may get worsen in case of cloud deployed services which generates logs of few GBs every day. Even though log management services like Logstash, fluentd,splunk, papertrail etc., unless  there is mechanism to correlate the requests across the services.
 
