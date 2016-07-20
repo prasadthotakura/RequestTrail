@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Request Trail by prasadthotakura</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Request Trail</h1>
+        <h2>Java Library that provides mechanism to correlate or track a specific request to a micro service that might translated to one or multiple internal requests to other micro services.</h2>
+        <a href="https://github.com/prasadthotakura/RequestTrail" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="request-trail" class="anchor" href="#request-trail" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Request Trail</h1>
+
+<p>Java Library that provides mechanism to correlate or track a specific request to a micro service that might translated to one or multiple internal requests to other micro services.</p>
+
+<p>In the era of highly distributed web applications, typically composed of micro services. A single request may cut across multiple micro services and translated to several requests delated to other micro services. It is extremely difficult to analyze and root cause the event of failure without sufficient contextual logging info. It may get worsen in case of cloud deployed services which generates logs of few GBs every day. Even though log management services like Logstash, fluentd,splunk, papertrail etc., unless  there is mechanism to correlate the requests across the services.</p>
+
+<p>Request Trail library would solve this for applications developed using Spring by providing correlation id to each request and populating it to all the requests that might be invoked to serve it. Also, it provides application stack details such as the request origination app and request traversal from app to app.</p>
+
+<p>With Request Trail in place, one can search log files or log management services with correlation id and get all relevant details to that specific request.
+As mentioned earlier, the solution has two parts.</p>
+
+<h5>
+<a id="generating-or-retrieving-the-correlation-id-to-or-from-request-and-populate-it-back-to-response" class="anchor" href="#generating-or-retrieving-the-correlation-id-to-or-from-request-and-populate-it-back-to-response" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Generating or retrieving the correlation id to or from request and populate it back to response:</h5>
+
+<p>This job is done by RequestTrailFilter. It retrieves correlation id from the header as specified with the configuration or environmental property “request.trail.correlation.header”, or from the default header “KIRA-CORRELATION-ID” if it is not provided. If the correlation header is available, it would generate the id. In both the cases correlation header would set to response.</p>
+
+<p>It also builds and populates request origin and applications details through which it traverse to. This would be retrieved or set from or to header as specified with configuration or environmental property “request.trail.app.call.stack.header”, adds the current application to stack and set the header to response. If the header name is not provided to the afore mentioned property, it would process default header "KIRA-APP-CALL-STACK"</p>
+
+<p>And, it populates logging context provided by implementation for ILoggingContextProvider to MDC which can retrieved and printed to log files later.</p>
+
+<h5>
+<a id="populating-correlation-id-down-the-request-chain" class="anchor" href="#populating-correlation-id-down-the-request-chain" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Populating correlation id down the request chain:</h5>
+
+<p>It is very common that an application communicating to with other application service to fulfill the request. The correlation id generated or retrieved by RequestTrailFilter has to be attached to request to be invoked to track or correlate all the translated requests as a single unit. </p>
+
+<p>With Spring in place, this inter communication typically would happen through RestTemplate.  So the correlation id can be attached using request interceptor RequestTrailInterceptor. There is preconfigured RestTemplate bean “kiraRestTemplate” with RequestTrailInterceptor and widely used message converters available with library. This can be used  full control is available on application development by changing the existing RestTemplate usage with kiraRestTemplate.  </p>
+
+<p>Otherwise, RequestTrailAspect can be used to intercept all the request that going through RestTemplate. RequestTrailAspect can be enabled by setting configuration or environmental property “request.trail.aspect.enable” to “true”. But beware of the performance overhead that can be introduced by using aspect.</p>
+
+<h2>
+<a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites:</h2>
+
+<ul>
+<li>Java 8.</li>
+<li>Spring 4.x</li>
+</ul>
+
+<h2>
+<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use?</h2>
+
+<p>Please see the available sample application. The sample application is developed using Spring Boot. For XML configuration based applications, please register DelegatingFilterProxy with target bean as “requestTrailFilter” and url pattern “/*” in web.xml. For example,</p>
+
+<pre><code>&lt;filter&gt;
+    &lt;filter-name&gt;requestTrailFilter&lt;/filter-name&gt;
+    &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
+  &lt;/filter&gt;
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;requestTrailFilter&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+  &lt;/filter-mapping&gt;
+
+</code></pre>
+
+<p>Also, enable annotation driven configuration (by adding &lt;context:annotation-config/&gt;  in config xml) and component scan for package “org.kira.requesttrail”.</p>
+
+<p>And, create a bean definition by implementing interface ILoggingContextProvider interface to provide application’s LoggingContext like app name, user etc. Please see SampleAppLoggingContextProviderImpl from sample application for implementation example.</p>
+
+<h2>
+<a id="log-configuration" class="anchor" href="#log-configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Log Configuration:</h2>
+
+<p>The LoggingContext (provided by ILoggingContextProvider implementation), correlation id and request origin and app call stack details put to MDC can be retrieved and printed to the log files. Corrleation Id should be retrieved using correlation header name as key, request origin and app call stack details should be retrieved with key app call stack header name, application name with key “app” and all other values from LoggingContext with same keys as they provided. </p>
+
+<p>The following sample log configuration are based on sample app where  request.trail.correlation.header is configured with header name “req-correlation-id”, request.trail.app.call.stack.header configured with header name "app-call-stack" and current logged in user name with key “user”</p>
+
+<h3>
+<a id="log4j-configuration" class="anchor" href="#log4j-configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Log4j configuration:</h3>
+
+<pre><code>log4j.rootLogger=WARN, default, fileAppender
+# Enable logging inside your application classes.
+#log4j.logger.&lt;replace all this with your application package name&gt;=WARN
+log4j.logger.org.kira.requesttrail=WARN
+log4j.logger.org.springframework=WARN
+log4j.appender.default=org.apache.log4j.ConsoleAppender
+# default uses PatternLayout.
+log4j.appender.default.layout=org.apache.log4j.PatternLayout
+# [Timestamp] [Trace Level] [P&lt;ID&gt;][T&lt;ID&gt;] [Context ID] [Context name] Message
+# [      %d ] [        %p ] [  ?? ][  %t ] [ %X       ] [ %c         ] %m%n
+log4j.appender.default.layout.ConversionPattern=%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %5p [T%t] [%X{req-correlation-id}|%X{user}|%X{app}|%X{app-call-stack}] [%C:%L] %m%n
+#------------------- File Appender --------------------------
+log4j.appender.fileAppender=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.fileAppender.threshold=DEBUG
+log4j.appender.fileAppender.File=logs/request-trail.log
+log4j.appender.fileAppender.layout=org.apache.log4j.PatternLayout
+log4j.appender.fileAppender.layout.ConversionPattern=%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %5p [T%t] [%X{req-correlation-id}|%X{user}|%X{app}|%X{app-call-stack}] [%C:%L] %m%n
+
+</code></pre>
+
+<h3>
+<a id="logback-configuration" class="anchor" href="#logback-configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Logback configuration:</h3>
+
+<div class="highlight highlight-text-xml"><pre>
+&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">"</span>UTF-8<span class="pl-pds">"</span></span>?&gt;
+&lt;<span class="pl-ent">configuration</span>&gt;
+    &lt;<span class="pl-ent">appender</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>consoleAppender<span class="pl-pds">"</span></span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>ch.qos.logback.core.ConsoleAppender<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">encoder</span>&gt;
+            &lt;<span class="pl-ent">pattern</span>&gt;%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} [%X{req-correlation-id}|%X{user}|%X{app}|%X{app-call-stack}] - %msg%n&lt;/<span class="pl-ent">pattern</span>&gt;
+        &lt;/<span class="pl-ent">encoder</span>&gt;
+    &lt;/<span class="pl-ent">appender</span>&gt;
+    &lt;<span class="pl-ent">appender</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>dailyRollingFileAppender<span class="pl-pds">"</span></span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>ch.qos.logback.core.rolling.RollingFileAppender<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">File</span>&gt;logs/request-correlation.log&lt;/<span class="pl-ent">File</span>&gt;
+        &lt;<span class="pl-ent">rollingPolicy</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>ch.qos.logback.core.rolling.TimeBasedRollingPolicy<span class="pl-pds">"</span></span>&gt;
+            &lt;<span class="pl-ent">FileNamePattern</span>&gt;request-correlation.%d{yyyy-MM-dd}.log&lt;/<span class="pl-ent">FileNamePattern</span>&gt;
+            &lt;<span class="pl-ent">maxHistory</span>&gt;30&lt;/<span class="pl-ent">maxHistory</span>&gt;
+        &lt;/<span class="pl-ent">rollingPolicy</span>&gt;
+        &lt;<span class="pl-ent">encoder</span>&gt;
+            &lt;<span class="pl-ent">pattern</span>&gt;%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} [%X{req-correlation-id}|%X{user}|%X{app}|%X{app-call-stack}] - %msg%n&lt;/<span class="pl-ent">pattern</span>&gt;
+        &lt;/<span class="pl-ent">encoder</span>&gt;
+    &lt;/<span class="pl-ent">appender</span>&gt;
+    &lt;<span class="pl-ent">logger</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>org.kira.requesttrail<span class="pl-pds">"</span></span> <span class="pl-e">level</span>=<span class="pl-s"><span class="pl-pds">"</span>INFO<span class="pl-pds">"</span></span> <span class="pl-e">additivity</span>=<span class="pl-s"><span class="pl-pds">"</span>false<span class="pl-pds">"</span></span>&gt;
+            &lt;<span class="pl-ent">appender-ref</span> <span class="pl-e">ref</span>=<span class="pl-s"><span class="pl-pds">"</span>consoleAppender<span class="pl-pds">"</span></span> /&gt;
+            &lt;<span class="pl-ent">appender-ref</span> <span class="pl-e">ref</span>=<span class="pl-s"><span class="pl-pds">"</span>dailyRollingFileAppender<span class="pl-pds">"</span></span> /&gt;
+    &lt;/<span class="pl-ent">logger</span>&gt;
+    &lt;<span class="pl-ent">root</span> <span class="pl-e">level</span>=<span class="pl-s"><span class="pl-pds">"</span>WARN<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">appender-ref</span> <span class="pl-e">ref</span>=<span class="pl-s"><span class="pl-pds">"</span>consoleAppender<span class="pl-pds">"</span></span> /&gt;
+        &lt;<span class="pl-ent">appender-ref</span> <span class="pl-e">ref</span>=<span class="pl-s"><span class="pl-pds">"</span>dailyRollingFileAppender<span class="pl-pds">"</span></span> /&gt;
+    &lt;/<span class="pl-ent">root</span>&gt;
+&lt;/<span class="pl-ent">configuration</span>&gt;
+</pre></div>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/prasadthotakura/RequestTrail/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/prasadthotakura/RequestTrail/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/prasadthotakura/RequestTrail"></a> is maintained by <a href="https://github.com/prasadthotakura">prasadthotakura</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
